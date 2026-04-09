@@ -1,51 +1,51 @@
-# 🧠 SimpleSP: Simple Sentence Predictor
+# SimpleSP: Simple Sentence Predictor
 
-SimpleSP is a minimalist, retrieval-based sentence prediction engine. It is designed to be **lightweight**, **local-first**, and **deterministic**, making it an ideal companion for technical writers, developers, or anyone who wants a private, fast completion assistant without the overhead of heavy AI models.
+SimpleSP is a minimalist, retrieval-based sentence prediction engine. It is engineered to be **lightweight**, **local-first**, and **deterministic**, providing a private and high-performance completion assistant for developers and technical writers without the complexity of large-scale language models.
 
-![SimpleSP Demo Status](https://img.shields.io/badge/Status-Open%20Source-blue?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![SimpleSP Status](https://img.shields.io/badge/Status-Open%20Source-blue?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-## ✨ Why SimpleSP?
+## Core Features
 
-- **Privacy First**: No data ever leaves your machine. Your data is your own.
-- **Blazing Fast**: Retrieval is near-instant, even with thousands of sentences.
-- **Zero Configuration AI**: Uses regex and template matching instead of training complex models.
-- **Hot Reloading**: Automatically refreshes its knowledge base when you save your files.
+- **Privacy-Centric**: All processing occurs locally. No data is transmitted to external servers.
+- **High Performance**: Near-instant retrieval speeds, optimized for large datasets.
+- **Deterministic Logic**: Utilizes advanced regex and template matching for predictable results.
+- **Live Updates**: Implements hot-reloading to immediately reflect changes in the local knowledge base.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.8 or higher
 - [uv](https://github.com/astral-sh/uv) (Recommended) or `pip`
 
 ### Installation
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/user/SimpleSP.git
+   git clone https://github.com/alexutzusoft/SimpleSP.git
    cd SimpleSP
    ```
 
 2. **Install dependencies:**
    ```bash
    uv pip install -r requirements.txt
-   # Or using pip:
+   # Alternatively, using pip:
    pip install -r requirements.txt
    ```
 
 ### Usage
 
-1. **Add your data**: Place your `.txt`, `.py`, or `.json` files in the `data/` directory.
-2. **Launch SimpleSP**:
+1. **Populate Data**: Add your text-based source files (`.txt`, `.py`, `.json`, etc.) to the `data/` directory.
+2. **Execute Application**:
    ```bash
    uv run main.py
    ```
-3. **Access the UI**: Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
+3. **Web Interface**: Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) to access the prediction interface.
 
-## ⚙️ Configuration
+## Configuration
 
-You can customize SimpleSP using `config.json` in the root directory:
+SimpleSP can be configured via the `config.json` file in the project root:
 
 ```json
 {
@@ -55,29 +55,22 @@ You can customize SimpleSP using `config.json` in the root directory:
 }
 ```
 
-## 🛠️ Architecture
+## Architecture
 
-SimpleSP uses a decoupled architecture for maximum flexibility:
+The system utilizes a decoupled architecture to ensure scalability and ease of maintenance:
 
 ```mermaid
 graph TD
-    Data[Data Sources: .txt, .json, .py] -->|Load| Engine[SSPEngine]
-    Engine -->|Regex/Template Matching| Logic[Prediction Logic]
+    Data[Data Sources] -->|Ingestion| Engine[SSP Engine]
+    Engine -->|Pattern Matching| Logic[Prediction Logic]
     Logic -->|Serve| API[FastAPI Server]
-    API -->|Fetch| UI[Minimalist Web UI]
+    API -->|Response| UI[Web Interface]
     UI -->|Input| API
 ```
 
-## 🧪 Running Tests
+## License
 
-To ensure everything is working correctly:
-```bash
-pytest
-```
-
-## 📜 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+This project is licensed under the MIT License. Refer to the `LICENSE` file for full details.
 
 ---
-Created by TreeSoft.
+Developed by Alexutzu fromm the TreeSoft Team.
