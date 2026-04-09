@@ -55,22 +55,9 @@ SimpleSP can be configured via the `config.json` file in the project root:
 }
 ```
 
-## Architecture
-
-The system utilizes a decoupled architecture to ensure scalability and ease of maintenance:
-
-```mermaid
-graph TD
-    Data[Data Sources] -->|Ingestion| Engine[SSP Engine]
-    Engine -->|Pattern Matching| Logic[Prediction Logic]
-    Logic -->|Serve| API[FastAPI Server]
-    API -->|Response| UI[Web Interface]
-    UI -->|Input| API
-```
-
 ## License
 
 This project is licensed under the MIT License. Refer to the `LICENSE` file for full details.
 
 ---
-Developed by Alexutzu fromm the TreeSoft Team.
+Developed by Alexutzu from the TreeSoft Team.
