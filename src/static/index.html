@@ -15,8 +15,17 @@
                 <div class="prediction-overlay" id="prediction-overlay"></div>
                 <textarea id="user-input" placeholder="Start typing..." autocomplete="off" autofocus rows="1"></textarea>
             </div>
+            <div id="prediction-results" class="results-container"></div>
         </main>
         <footer class="status-bar">
+            <div class="limit-selector" id="limit-selector">
+                <span class="limit-label">Predict:</span>
+                <button class="limit-btn active" data-limit="1">1</button>
+                <button class="limit-btn" data-limit="2">2</button>
+                <button class="limit-btn" data-limit="5">5</button>
+                <button class="limit-btn" data-limit="10">10</button>
+                <button class="limit-btn" data-limit="999">∞</button>
+            </div>
             <span id="status-text">SimpleSP • Loading...</span>
         </footer>
     <script src="static/script.js"></script>

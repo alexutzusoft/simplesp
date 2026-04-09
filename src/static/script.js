@@ -1,24 +1,34 @@
 const userInput = document.getElementById('user-input');
 const predictionOverlay = document.getElementById('prediction-overlay');
+const predictionResults = document.getElementById('prediction-results');
+const limitSelector = document.getElementById('limit-selector');
 
-let currentPrediction = '';
+let currentPredictions = [];
 let lastValue = '';
+let currentLimit = 1;
 
 // Smoother auto-resize for the textarea
 function autoResize() {
-    // We only recalculate if the scrollHeight has changed relative to current height
-    // This avoids resetting the height to 'auto' on every stroke, which is choppy.
     const currentScrollHeight = userInput.scrollHeight;
     if (Math.abs(userInput.offsetHeight - currentScrollHeight) > 10) {
         userInput.style.height = currentScrollHeight + 'px';
-        predictionOverlay.height = currentScrollHeight + 'px';
+        predictionOverlay.style.height = currentScrollHeight + 'px';
     }
+}
+
+function selectPrediction(text) {
+    userInput.value = text;
+    predictionOverlay.textContent = '';
+    predictionResults.innerHTML = '';
+    currentPredictions = [];
+    lastValue = text;
+    autoResize();
+    userInput.focus();
 }
 
 userInput.addEventListener('input', async (e) => {
     const text = e.target.value;
     
-    // Only resize if content changed significantly
     if (text !== lastValue) {
         autoResize();
         lastValue = text;
@@ -26,7 +36,8 @@ userInput.addEventListener('input', async (e) => {
 
     if (!text.trim()) {
         predictionOverlay.textContent = '';
-        currentPrediction = '';
+        predictionResults.innerHTML = '';
+        currentPredictions = [];
         return;
     }
 
@@ -36,28 +47,39 @@ userInput.addEventListener('input', async (e) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ text }),
+            body: JSON.stringify({ text, limit: currentLimit }),
         });
 
         const data = await response.json();
-        const fullPrediction = data.prediction;
+        currentPredictions = data.predictions || [];
 
-        if (fullPrediction && (fullPrediction.toLowerCase().startsWith(text.toLowerCase()) || fullPrediction.includes("{P}"))) {
+        // 1. Ghost text for the first prediction
+        const firstMatch = currentPredictions[0];
+        if (firstMatch && (firstMatch.toLowerCase().startsWith(text.toLowerCase()) || firstMatch.includes("{P}"))) {
             let ghostText = '';
-            if (fullPrediction.toLowerCase().startsWith(text.toLowerCase())) {
-                ghostText = fullPrediction.substring(text.length);
+            if (firstMatch.toLowerCase().startsWith(text.toLowerCase())) {
+                ghostText = firstMatch.substring(text.length);
             } else {
-                ghostText = ` -> ${fullPrediction}`;
+                ghostText = ` -> ${firstMatch}`;
             }
-            
-            // Re-render only if the prediction changed
-            if (currentPrediction !== fullPrediction || text !== lastValue) {
-                predictionOverlay.innerHTML = `<span style="color: transparent;">${text}</span>${ghostText}`;
-                currentPrediction = fullPrediction;
-            }
+            predictionOverlay.innerHTML = `<span style="color: transparent;">${text}</span>${ghostText}`;
         } else {
             predictionOverlay.textContent = '';
-            currentPrediction = '';
+        }
+
+        // 2. Render all results in the list
+        predictionResults.innerHTML = '';
+        if (currentLimit > 1) {
+            currentPredictions.forEach((pred, index) => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                const textEl = document.createElement('div');
+                textEl.className = 'result-text';
+                textEl.textContent = pred;
+                card.appendChild(textEl);
+                card.onclick = () => selectPrediction(pred);
+                predictionResults.appendChild(card);
+            });
         }
 
     } catch (err) {
@@ -67,13 +89,25 @@ userInput.addEventListener('input', async (e) => {
 
 userInput.addEventListener('keydown', (e) => {
     if (e.key === 'Tab' || (e.key === 'ArrowRight' && userInput.selectionStart === userInput.value.length)) {
-        if (currentPrediction && !currentPrediction.includes("->")) {
-            e.preventDefault();
-            userInput.value = currentPrediction;
-            predictionOverlay.textContent = '';
-            lastValue = currentPrediction;
-            autoResize();
+        if (currentPredictions.length > 0) {
+            const firstMatch = currentPredictions[0];
+            if (!firstMatch.includes("->")) {
+                e.preventDefault();
+                selectPrediction(firstMatch);
+            }
         }
+    }
+});
+
+// Limit buttons handling
+limitSelector.addEventListener('click', (e) => {
+    if (e.target.classList.contains('limit-btn')) {
+        document.querySelectorAll('.limit-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        currentLimit = parseInt(e.target.dataset.limit);
+        
+        // Re-trigger prediction
+        userInput.dispatchEvent(new Event('input'));
     }
 });
 

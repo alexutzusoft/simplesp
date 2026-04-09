@@ -109,21 +109,23 @@ class SSPEngine:
             print(f"Hot Reload: Changes detected. Refreshing corpus...")
             self.load_data()
 
-    def predict(self, text: str) -> str:
+    def predict(self, text: str, limit: int = 1) -> List[str]:
         self.refresh_if_needed()
         
         if not text:
-            return ""
+            return []
 
-        # Simplified logic: find first sentence in corpus that starts with text
-        # Or matches template
-        prediction = self._find_best_match(text)
-        return prediction if prediction else ""
+        # Find multiple sentences in corpus that start with text or match template
+        predictions = self._find_matches(text, limit)
+        return predictions
 
-    def _find_best_match(self, fragment: str) -> Optional[str]:
+    def _find_matches(self, fragment: str, limit: int = 1) -> List[str]:
         fragment_clean = fragment.strip()
         if not fragment_clean:
-            return None
+            return []
+
+        matches = []
+        seen = set()
 
         # 1. Template matching {P}
         if "{P}" in fragment_clean:
@@ -132,13 +134,26 @@ class SSPEngine:
             escaped_parts = [re.escape(p) for p in parts]
             regex_pattern = "(.*?)".join(escaped_parts)
             
-            for sentence in self.corpus:
-                if re.search(f"^{regex_pattern}", sentence, re.IGNORECASE):
-                    return sentence
+            try:
+                pattern = re.compile(f"^{regex_pattern}", re.IGNORECASE)
+                for sentence in self.corpus:
+                    if pattern.search(sentence):
+                        if sentence not in seen:
+                            matches.append(sentence)
+                            seen.add(sentence)
+                            if limit is not None and len(matches) >= limit:
+                                return matches
+            except Exception as e:
+                print(f"Regex error: {e}")
         
         # 2. Prefix matching
+        fragment_lower = fragment_clean.lower()
         for sentence in self.corpus:
-            if sentence.lower().startswith(fragment_clean.lower()):
-                return sentence
+            if sentence.lower().startswith(fragment_lower):
+                if sentence not in seen:
+                    matches.append(sentence)
+                    seen.add(sentence)
+                    if limit is not None and len(matches) >= limit:
+                        return matches
                 
-        return None
+        return matches

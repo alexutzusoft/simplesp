@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
+from typing import List, Optional
 from src.ssp_engine import SSPEngine
 import uvicorn
 import os
@@ -16,14 +17,16 @@ if not os.path.exists(static_dir):
 
 class PredictionRequest(BaseModel):
     text: str
+    limit: Optional[int] = 1
 
 class PredictionResponse(BaseModel):
-    prediction: str
+    predictions: List[str]
 
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(req: PredictionRequest):
-    result = engine.predict(req.text)
-    return PredictionResponse(prediction=result)
+    # Pass limit to engine. If limit is 0 or very high, engine handles it.
+    results = engine.predict(req.text, limit=req.limit)
+    return PredictionResponse(predictions=results)
 
 @app.get("/stats")
 async def stats():
