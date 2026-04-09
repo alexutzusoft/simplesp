@@ -4,6 +4,16 @@ import time
 import json
 from typing import List, Optional
 
+DEFAULT_CONFIG = {
+    "data_dir": "data",
+    "supported_extensions": [".txt", ".py", ".json"],
+    "reload_check_interval": 2,
+    "ui": {
+        "title": "SimpleSP / Sentence Prediction",
+        "dark_mode": True
+    }
+}
+
 class SSPEngine:
     def __init__(self, config_path: str = "config.json"):
         self.config_path = config_path
@@ -16,13 +26,22 @@ class SSPEngine:
         self.load_data()
 
     def _load_config(self) -> dict:
+        if not os.path.exists(self.config_path):
+            try:
+                with open(self.config_path, "w", encoding="utf-8") as f:
+                    json.dump(DEFAULT_CONFIG, f, indent=4)
+                print(f"Created default configuration at {self.config_path}")
+                return DEFAULT_CONFIG
+            except Exception as e:
+                print(f"Error creating default config: {e}")
+                return DEFAULT_CONFIG
+
         try:
-            if os.path.exists(self.config_path):
-                with open(self.config_path, "r", encoding="utf-8") as f:
-                    return json.load(f)
+            with open(self.config_path, "r", encoding="utf-8") as f:
+                return json.load(f)
         except Exception as e:
-            print(f"Error loading config: {e}")
-        return {}
+            print(f"Error loading config: {e}. Using defaults.")
+            return DEFAULT_CONFIG
 
     def _get_data_mtime(self) -> float:
         if not os.path.exists(self.data_dir):
